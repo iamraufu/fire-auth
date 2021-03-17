@@ -49,6 +49,14 @@ function App() {
   }
 
   const handleBlur = (event) => {
+    if (event.target.name ==='email') {
+      const isValidEmail = /\S+@\S+\.\S+/.test(event.target.value)
+      console.log(isValidEmail)
+    }
+    if(event.target.name === 'password'){
+      const isValidPassword = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{7,}$/.test(event.target.value)
+      console.log(isValidPassword)
+    }
     console.log(event.target.name, event.target.value)
   }
 
