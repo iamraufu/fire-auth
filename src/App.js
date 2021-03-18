@@ -54,7 +54,7 @@ function App() {
     const accessToken = credential.accessToken;
 
     // ...
-    const (user)
+    console.log(user)
   })
   .catch((error) => {
     // Handle Errors here.
