@@ -7,12 +7,16 @@ import { useState } from 'react';
 firebase.initializeApp(firebaseConfig);
 
 function App() {
+  const [newUser,setNewUser] = useState(false)
   const [user, setUser] = useState({
     isSignedIn: false,
+    newUser: false,
     name: '',
     email: '',
     password: '',
-    photo: ''
+    photo: '',
+    error:'',
+    success: false
   })
   const provider = new firebase.auth.GoogleAuthProvider();
   const handleSignIn = () => {
@@ -50,22 +54,56 @@ function App() {
   }
 
   const handleBlur = (event) => {
-    let isFormValid = true;
+    let isFieldValid = true;
     if (event.target.name === 'email') {
-      isFormValid = /\S+@\S+\.\S+/.test(event.target.value)
+      isFieldValid = /\S+@\S+\.\S+/.test(event.target.value)
     }
     if (event.target.name === 'password') {
-      isFormValid = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{7,}$/.test(event.target.value)
+      isFieldValid = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{7,}$/.test(event.target.value)
     }
-    if (isFormValid) {
+    if (isFieldValid) {
       const newUserInfo = { ...user };
       newUserInfo[event.target.name] = event.target.value;
       setUser(newUserInfo);
     }
   }
 
-  const handleSubmit = () => {
-    console.log("submitted")
+  const handleSubmit = (event) => {
+    // console.log(user.email, user.password);
+    if (newUser && user.email && user.password) {
+      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+      .then((res) => {
+        const newUserInfo = {...user};
+        newUserInfo.error = ''; 
+        newUserInfo.success = true;
+        setUser(newUserInfo);
+      })
+      .catch((error) => {
+        const newUserInfo = {...user};
+        newUserInfo.error = error.message;
+        newUserInfo.success = false;
+        setUser(newUserInfo);
+      });
+    }
+
+    if(!newUser && user.email && user.password){
+      firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+    .then(res => {
+      const newUserInfo = {...user};
+      newUserInfo.error = ''; 
+      newUserInfo.success = true;
+      setUser(newUserInfo);
+  })
+  .catch((error) => {
+    const newUserInfo = {...user};
+        newUserInfo.error = error.message;
+        newUserInfo.success = false;
+        setUser(newUserInfo);
+  });
+    }
+
+    event.preventDefault();
+    
   }
 
   return (
@@ -84,11 +122,10 @@ function App() {
           </div>
         }
         <h1>Authentication System</h1>
-        <p>Name: {user.name}</p>
-        <p>Email: {user.email}</p>
-        <p>Password: {user.password}</p>
+        <input type="checkbox" onChange ={()=>setNewUser(!newUser)} name="newUser" id=""/>
+        <label htmlFor="newUser">New User Sign Up</label>
         <form onSubmit={handleSubmit}>
-          <input type="text" onBlur={handleBlur} name='name' placeholder='Your Name' required />
+          { newUser && <input type="text" onBlur={handleBlur} name='name' placeholder='Your Name' />}
           <br />
           <input type="text" onBlur={handleBlur} name='email' placeholder='Your Email' required />
           <br />
@@ -96,6 +133,10 @@ function App() {
           <br />
           <input type="submit" value="Submit" />
         </form>
+        <p style={{color:'red'}}>{user.error}</p>
+        {
+          user.success && <p style={{color:'green'}}>Successfully Signed {newUser? 'Up':'In'}</p>
+        }
       </header>
     </div>
   );
