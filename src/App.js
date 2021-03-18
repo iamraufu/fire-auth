@@ -77,6 +77,7 @@ function App() {
         newUserInfo.error = ''; 
         newUserInfo.success = true;
         setUser(newUserInfo);
+        updateUserName(user.name);
       })
       .catch((error) => {
         const newUserInfo = {...user};
@@ -93,6 +94,7 @@ function App() {
       newUserInfo.error = ''; 
       newUserInfo.success = true;
       setUser(newUserInfo);
+      console.log('sign in', res.user)                                            
   })
   .catch((error) => {
     const newUserInfo = {...user};
@@ -104,6 +106,18 @@ function App() {
 
     event.preventDefault();
     
+  }
+
+  const updateUserName = name =>{
+    const user = firebase.auth().currentUser;
+
+  user.updateProfile({
+  displayName: name
+}).then(function() {
+  console.log('name updated')
+}).catch(function(error) {
+  console.log(error)
+});
   }
 
   return (
@@ -131,7 +145,7 @@ function App() {
           <br />
           <input type="password" onBlur={handleBlur} name="password" id="" placeholder='Your Password' required />
           <br />
-          <input type="submit" value="Submit" />
+          <input type="submit" value={newUser? "Sign Up":"Sign In"} />
         </form>
         <p style={{color:'red'}}>{user.error}</p>
         {
