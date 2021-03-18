@@ -11,6 +11,7 @@ function App() {
     isSignedIn: false,
     name: '',
     email: '',
+    password: '',
     photo: ''
   })
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -49,15 +50,18 @@ function App() {
   }
 
   const handleBlur = (event) => {
-    if (event.target.name ==='email') {
-      const isValidEmail = /\S+@\S+\.\S+/.test(event.target.value)
-      console.log(isValidEmail)
+    let isFormValid = true;
+    if (event.target.name === 'email') {
+      isFormValid = /\S+@\S+\.\S+/.test(event.target.value)
     }
-    if(event.target.name === 'password'){
-      const isValidPassword = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{7,}$/.test(event.target.value)
-      console.log(isValidPassword)
+    if (event.target.name === 'password') {
+      isFormValid = /^(?=.*\d)(?=.*[a-zA-Z])[a-zA-Z0-9]{7,}$/.test(event.target.value)
     }
-    console.log(event.target.name, event.target.value)
+    if (isFormValid) {
+      const newUserInfo = { ...user };
+      newUserInfo[event.target.name] = event.target.value;
+      setUser(newUserInfo);
+    }
   }
 
   const handleSubmit = () => {
@@ -80,7 +84,12 @@ function App() {
           </div>
         }
         <h1>Authentication System</h1>
+        <p>Name: {user.name}</p>
+        <p>Email: {user.email}</p>
+        <p>Password: {user.password}</p>
         <form onSubmit={handleSubmit}>
+          <input type="text" onBlur={handleBlur} name='name' placeholder='Your Name' required />
+          <br />
           <input type="text" onBlur={handleBlur} name='email' placeholder='Your Email' required />
           <br />
           <input type="password" onBlur={handleBlur} name="password" id="" placeholder='Your Password' required />
